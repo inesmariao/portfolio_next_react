@@ -1,13 +1,9 @@
 import Layout from "../components/Layout";
 import { useRouter } from "next/router";
-import { posts } from "@/profile";
+import { posts } from "@/pages/profile";
 
-const Post = () => {
+const Post = ({ currentPost }) => {
   const router = useRouter();
-
-  const currentPost = posts.filter(
-    (post) => post.title === router.query.title
-  )[0];
 
   if (!currentPost) {
     return {
@@ -15,8 +11,8 @@ const Post = () => {
         destination: "/",
         permanent: false,
       },
-    }
-  } 
+    };
+  }
 
   return (
     <Layout title={router.query.title} footer={false}>
@@ -32,5 +28,25 @@ const Post = () => {
     </Layout>
   );
 };
+
+export async function getServerSideProps(context) {
+  const { title } = context.query;
+  const currentPost = posts.find((post) => post.title === title);
+
+  if (!currentPost) {
+    return {
+      redirect: {
+        destination: "/",
+        permanent: false,
+      },
+    };
+  }
+
+  return {
+    props: {
+      currentPost,
+    },
+  };
+}
 
 export default Post;
